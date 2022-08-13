@@ -9,6 +9,7 @@ fn chapter(ui: &mut Ui, chapter_name: &mut String, start_time: &mut String, end_
 
     ui.add(egui::TextEdit::singleline(chapter_name));
 
+
     ui.add(egui::TextEdit::singleline(start_time));
 
     ui.add(egui::TextEdit::singleline(end_time));
@@ -16,9 +17,9 @@ fn chapter(ui: &mut Ui, chapter_name: &mut String, start_time: &mut String, end_
 }
 
 #[derive(Default)]
-pub struct MyEguiApp {}
+pub struct MP3ID3Gui {}
 
-impl MyEguiApp {
+impl MP3ID3Gui {
     pub fn new(cc: &eframe::CreationContext<'_>) -> Self {
         // Customize egui here with cc.egui_ctx.set_fonts and cc.egui_ctx.set_visuals.
         // Restore app state using cc.storage (requires the "persistence" feature).
@@ -28,11 +29,15 @@ impl MyEguiApp {
     }
 }
 
-impl eframe::App for MyEguiApp {
+impl eframe::App for MP3ID3Gui {
    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-        let &mut chapter_name:String;
+        ctx.set_visuals(egui::Visuals::dark());
+        let mut chapter_name = String::new();
+        let mut start_time = String::new();
+        let mut end_time = String::new();
+        let mut chapter_number = 1;
        egui::CentralPanel::default().show(ctx, |ui| {
-           chapter(ui, &mut String::from("test"), &mut String::from("startTime"), &mut String::from("endTime"), &mut 1)
+           chapter(ui, &mut chapter_name, &mut start_time, &mut end_time, &mut chapter_number)
        });
    }
 }
