@@ -1,4 +1,5 @@
 use std::collections::btree_map::Iter;
+use std::convert;
 
 use id3::{Tag, TagLike, Error, ErrorKind, Version, Frame};
 use id3::frame::{Content, Chapter};
@@ -29,46 +30,55 @@ pub fn modify_tags(path: &str) -> Result<(), Box<dyn std::error::Error>> {
         Err(err) => return Err(Box::new(err)),
     };
     
+    let chapter_count = 1;
+    let start_time = "5:12";
+    let end_time = "23:01";
+    let chapter_name = "test_chapt";
+
     tag.add_frame(new_chapter(chapter_count, start_time, end_time, chapter_name));
 
     Ok(())
 }
 
 pub fn new_chapter(chapter_count: i32, start_time: &str, end_time: &str, chapter_name: &str) -> Chapter {
-    let start_count = start_time.matches(':').count();
-    let end_count = end_time.matches(':').count();
-    
-    let start_sec = match start_count {
-        0 => u32::from_str(start_time).unwrap(),
-        1 => {
-            let split_vec = start_time.split(':').collect::<Vec<_>>();
-            let min: u32 = u32::from_str(split_vec[0]).unwrap();
-            min * 60 + u32::from_str(split_vec[1]).unwrap()
-        },
-        2 => {
-            let split_vec = start_time.split(':').collect::<Vec<_>>();
-            let hour = u32::from_str(split_vec[0]).unwrap();
-            let min = u32::from_str(split_vec[1]).unwrap();
-            hour * 60 * 60 + min * 60 + u32::from_str(split_vec[2]).unwrap()
-        },
-        _ => panic!()
-    };
 
-    let end_sec = match end_count {
-        0 => u32::from_str(end_time).unwrap(),
-        1 => {
-            let split_vec = end_time.split(':').collect::<Vec<_>>();
-            let min: u32 = u32::from_str(split_vec[0]).unwrap();
-            min * 60 + u32::from_str(split_vec[1]).unwrap()
-        },
-        2 => {
-            let split_vec = end_time.split(':').collect::<Vec<_>>();
-            let hour = u32::from_str(split_vec[0]).unwrap();
-            let min = u32::from_str(split_vec[1]).unwrap();
-            hour * 60 * 60 + min * 60 + u32::from_str(split_vec[2]).unwrap()
-        },
-        _ => panic!()
-    };
+    let start_sec = convert_time(start_time);
+    let end_sec = convert_time(end_time);
+
+    // let start_count = start_time.matches(':').count();
+    // let end_count = end_time.matches(':').count();
+    
+    // let start_sec = match start_count {
+    //     0 => u32::from_str(start_time).unwrap(),
+    //     1 => {
+    //         let split_vec = start_time.split(':').collect::<Vec<_>>();
+    //         let min: u32 = u32::from_str(split_vec[0]).unwrap();
+    //         min * 60 + u32::from_str(split_vec[1]).unwrap()
+    //     },
+    //     2 => {
+    //         let split_vec = start_time.split(':').collect::<Vec<_>>();
+    //         let hour = u32::from_str(split_vec[0]).unwrap();
+    //         let min = u32::from_str(split_vec[1]).unwrap();
+    //         hour * 60 * 60 + min * 60 + u32::from_str(split_vec[2]).unwrap()
+    //     },
+    //     _ => panic!()
+    // };
+
+    // let end_sec = match end_count {
+    //     0 => u32::from_str(end_time).unwrap(),
+    //     1 => {
+    //         let split_vec = end_time.split(':').collect::<Vec<_>>();
+    //         let min: u32 = u32::from_str(split_vec[0]).unwrap();
+    //         min * 60 + u32::from_str(split_vec[1]).unwrap()
+    //     },
+    //     2 => {
+    //         let split_vec = end_time.split(':').collect::<Vec<_>>();
+    //         let hour = u32::from_str(split_vec[0]).unwrap();
+    //         let min = u32::from_str(split_vec[1]).unwrap();
+    //         hour * 60 * 60 + min * 60 + u32::from_str(split_vec[2]).unwrap()
+    //     },
+    //     _ => panic!()
+    // };
 
     Chapter { 
         element_id: chapter_count.to_string(), 
@@ -77,5 +87,25 @@ pub fn new_chapter(chapter_count: i32, start_time: &str, end_time: &str, chapter
         start_offset: 0xff, 
         end_offset: 0xff, 
         frames: Vec::new() 
+    }
+    
+}
+
+pub fn convert_time(time: &str) -> u32 {
+    let count = time.matches(':').count();
+    match count {
+        0 => u32::from_str(time).unwrap(),
+        1 => {
+            let split_vec = time.split(':').collect::<Vec<_>>();
+            let min: u32 = u32::from_str(split_vec[0]).unwrap();
+            min * 60 + u32::from_str(split_vec[1]).unwrap()
+        },
+        2 => {
+            let split_vec = time.split(':').collect::<Vec<_>>();
+            let hour = u32::from_str(split_vec[0]).unwrap();
+            let min = u32::from_str(split_vec[1]).unwrap();
+            hour * 60 * 60 + min * 60 + u32::from_str(split_vec[2]).unwrap()
+        },
+        _ => panic!()
     }
 }
